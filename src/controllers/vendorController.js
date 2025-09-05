@@ -96,9 +96,9 @@ exports.addVendor = async (req, res) => {
 
 exports.updateVendorStatus = async (req, res) => {
   try {
-    const { vendorId, is_open, prep_time } = req.body;
-    await vendorService.updateVendorStatus(vendorId, is_open, prep_time);
-    res.json({ message: "Vendor status updated" });
+    const { id, name, phone, service_radius, is_open, prep_time } = req.body;
+    await vendorService.updateVendorStatus(id, name, phone, service_radius, is_open, prep_time);
+    res.json({ message: "Vendor updated" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

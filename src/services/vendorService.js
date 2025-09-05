@@ -53,10 +53,17 @@ exports.fetchServices = async (category, city) => {
   return rows;
 };
 
-exports.updateVendorStatus = async (vendorId, is_open, prep_time) => {
+exports.updateVendorStatus = async (id, name, phone, service_radius, is_open, prep_time) => {
   await pool.query(
-    "UPDATE vendors SET is_open=$1, prep_time=$2 WHERE id=$3",
-    [is_open, prep_time, vendorId]
+    `UPDATE vendors
+    SET 
+      name = $1,
+      phone = $2,
+      service_radius = $3,
+      is_open = $4,
+      prep_time = $5
+    WHERE id = $6`,
+    [name, phone, service_radius, is_open, prep_time, id]
   );
 };
 
