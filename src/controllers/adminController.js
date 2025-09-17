@@ -1,4 +1,5 @@
 const adminService = require("../services/adminService");
+const XLSX = require("xlsx");
 
 exports.addNewServiceAreaPincode = async (req, res) => {
     try {
@@ -20,6 +21,22 @@ exports.addNewServiceAreaPincode = async (req, res) => {
     }
   };
 
+  exports.checkServiceArea = async (req, res) => {
+    try {
+      console.log("hitting servicearea check")
+      const { lat, lng } = req.body;
+      if (!lat || !lng) {
+        return res.status(400).json({ error: "Latitude and Longitude required" });
+      }
+  
+      const result = await adminService.checkServiceArea(lat, lng);
+      res.json(result);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
+  
+
   exports.addGlobalMenuItem = async (req, res) => {
     try {
       const { name } = req.body;
@@ -38,3 +55,37 @@ exports.addNewServiceAreaPincode = async (req, res) => {
     }
   };
   
+
+exports.uploadGlobalMenuFromExcel = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No Excel file uploaded" });
+    }
+
+    // read Excel buffer from memory
+    const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+
+    // convert to JSON [{ name: "...", imageUrl: "..." }, ...]
+    const rows = XLSX.utils.sheet_to_json(sheet);
+
+    // validate structure
+    if (!rows.length || !rows[0].name || !rows[0].imageUrl) {
+      return res.status(400).json({ error: "Excel must have columns: name, imageUrl" });
+    }
+
+    // insert all rows into DB
+    for (const row of rows) {
+      const name = row.name;
+      const imageUrl = row.imageUrl;
+      await adminService.addGlobalMenuItem(name, imageUrl);
+    }
+
+    res.json({ message: `${rows.length} items added to global menu` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+

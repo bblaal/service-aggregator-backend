@@ -32,7 +32,7 @@ router.post(
   upload.single("image"),   // <-- inserted here
   vendorController.addVendor
 );
-router.patch("/vendor/status", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.updateVendorStatus);
+router.patch("/vendor/status", requireAuth, requireRole("VENDOR", "ADMIN"), upload.single("image"), vendorController.updateVendorStatus);
 router.patch("/vendor/menu/items/:id", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.updateMenuItemForVendor);
 router.post("/vendors/menu/items/add", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.addMenuItemForVendor);
 router.get("/globalMenu", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.fetchGlobalMenuList);

@@ -27,5 +27,22 @@ const storage = multer.diskStorage({
     adminController.addGlobalMenuItem
   );
   
-  router.get("/fetchServiceArea", requireAuth, adminController.fetchServiceArea)
+
+  // excel add route
+// use memoryStorage since we don't need to save file
+const storage_excel_read = multer.memoryStorage();
+const upload_excel_read = multer({ storage_excel_read });
+
+// Upload Excel for global menu (ADMIN only)
+router.post(
+  "/globalMenu/uploadExcel",
+  requireAuth,
+  requireRole("ADMIN"),
+  upload_excel_read.single("excel"),   // upload excel file
+  adminController.uploadGlobalMenuFromExcel
+);
+
+  router.get("/fetchServiceArea", adminController.fetchServiceArea)
+
+  router.post("/checkServiceArea", adminController.checkServiceArea);
 module.exports = router;

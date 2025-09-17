@@ -12,6 +12,7 @@ exports.getVendors = async (req, res) => {
 };
 
 exports.getVendorsByArea = async (req, res) => {
+  console.log("hitting by area", req.query)
   try {
     const { area } = req.query;
     const vendors = await vendorService.fetchVendorsByArea(area);
@@ -97,7 +98,12 @@ exports.addVendor = async (req, res) => {
 exports.updateVendorStatus = async (req, res) => {
   try {
     const { id, name, phone, service_radius, is_open, prep_time } = req.body;
-    await vendorService.updateVendorStatus(id, name, phone, service_radius, is_open, prep_time);
+    // if file uploaded by multer
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = `/uploads/vendors/${req.file.filename}`;
+    }
+    await vendorService.updateVendorStatus(id, name, phone, service_radius, is_open, prep_time, imageUrl);
     res.json({ message: "Vendor updated" });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -133,3 +139,4 @@ exports.fetchGlobalMenuList = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
