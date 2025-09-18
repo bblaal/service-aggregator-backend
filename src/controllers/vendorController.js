@@ -51,10 +51,10 @@ exports.getServices = async (req, res) => {
   }
 };
 
-// Vendor/Admin
+// controllers/vendorController.js
 exports.addVendor = async (req, res) => {
   try {
-    const {  
+    const {
       name,
       type,
       address,
@@ -64,15 +64,10 @@ exports.addVendor = async (req, res) => {
       is_open,
       prep_time,
       service_radius,
-      phone
+      phone,
+      image_url,   // <-- directly from body
     } = req.body;
 
-    // if file uploaded by multer
-    let imageUrl = null;
-    if (req.file) {
-      imageUrl = `/uploads/vendors/${req.file.filename}`;
-    }
-    
     await vendorService.addVendor(
       name,
       type,
@@ -84,7 +79,7 @@ exports.addVendor = async (req, res) => {
       prep_time,
       service_radius,
       phone,
-      imageUrl
+      image_url
     );
 
     res.json({ message: "Vendor added successfully" });
@@ -95,20 +90,36 @@ exports.addVendor = async (req, res) => {
 };
 
 
+// controllers/vendorController.js
 exports.updateVendorStatus = async (req, res) => {
   try {
-    const { id, name, phone, service_radius, is_open, prep_time } = req.body;
-    // if file uploaded by multer
-    let imageUrl = null;
-    if (req.file) {
-      imageUrl = `/uploads/vendors/${req.file.filename}`;
-    }
-    await vendorService.updateVendorStatus(id, name, phone, service_radius, is_open, prep_time, imageUrl);
+    const {
+      id,
+      name,
+      phone,
+      service_radius,
+      is_open,
+      prep_time,
+      image_url,   // <-- take directly from body
+    } = req.body;
+
+    await vendorService.updateVendorStatus(
+      id,
+      name,
+      phone,
+      service_radius,
+      is_open,
+      prep_time,
+      image_url
+    );
+
     res.json({ message: "Vendor updated" });
   } catch (err) {
+    console.error("Error updating vendor:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 exports.updateMenuItemForVendor = async (req, res) => {
   try {

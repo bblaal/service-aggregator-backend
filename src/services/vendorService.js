@@ -53,20 +53,30 @@ exports.fetchServices = async (category, city) => {
   return rows;
 };
 
-exports.updateVendorStatus = async (id, name, phone, service_radius, is_open, prep_time, imageUrl) => {
+// services/vendorService.js
+exports.updateVendorStatus = async (
+  id,
+  name,
+  phone,
+  service_radius,
+  is_open,
+  prep_time,
+  image_url
+) => {
   await pool.query(
     `UPDATE vendors
-    SET 
-      name = $1,
-      phone = $2,
-      service_radius = $3,
-      is_open = $4,
-      prep_time = $5,
-      image_url = $6
-    WHERE id = $7`,
-    [name, phone, service_radius, is_open, prep_time, imageUrl, id]
+     SET 
+       name = $1,
+       phone = $2,
+       service_radius = $3,
+       is_open = $4,
+       prep_time = $5,
+       image_url = $6
+     WHERE id = $7`,
+    [name, phone, service_radius, is_open, prep_time, image_url, id]
   );
 };
+
 
 exports.updateMenuItemForVendor = async (id, is_available, price) => {
   await pool.query(
@@ -82,6 +92,7 @@ exports.addMenuItemForVendor = async (vendorId, globalMenuId, description, price
   );
 };
 
+// services/vendorService.js
 exports.addVendor = async (
   name,
   type,
@@ -97,8 +108,8 @@ exports.addVendor = async (
 ) => {
   await pool.query(
     `INSERT INTO vendors 
-    (name, type, address, latitude, longitude, is_open, prep_time, service_area, service_radius, phone, image_url) 
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+     (name, type, address, latitude, longitude, is_open, prep_time, service_area, service_radius, phone, image_url) 
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
     [name, type, address, latitude, longitude, is_open, prep_time, area, service_radius, phone, image_url]
   );
 };
