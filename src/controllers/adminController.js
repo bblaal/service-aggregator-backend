@@ -5,7 +5,7 @@ exports.addNewServiceAreaPincode = async (req, res) => {
     try {
       const { area, pincode } = req.body;
       await adminService.addNewServiceAreaPincode(pincode, area);
-      res.json({ message: "New PINCODE added" });
+      res.json({ message: "New Area added" });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -23,7 +23,6 @@ exports.addNewServiceAreaPincode = async (req, res) => {
 
   exports.checkServiceArea = async (req, res) => {
     try {
-      console.log("hitting servicearea check")
       const { lat, lng } = req.body;
       if (!lat || !lng) {
         return res.status(400).json({ error: "Latitude and Longitude required" });

@@ -12,7 +12,6 @@ exports.getVendors = async (req, res) => {
 };
 
 exports.getVendorsByArea = async (req, res) => {
-  console.log("hitting by area", req.query)
   try {
     const { area } = req.query;
     const vendors = await vendorService.fetchVendorsByArea(area);

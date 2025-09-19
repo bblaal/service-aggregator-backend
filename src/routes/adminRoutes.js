@@ -6,7 +6,7 @@ const adminController = require("../controllers/adminController");
 const {requireAuth, requireRole} = require("../middleware/authMiddleware");
 
 
-router.post("/pincode/add", requireAuth, requireRole("ADMIN"), adminController.addNewServiceAreaPincode);
+router.post("/addServiceArea", requireAuth, requireRole("ADMIN"), adminController.addNewServiceAreaPincode);
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
