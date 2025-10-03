@@ -6,8 +6,9 @@ const {requireAuth, requireRole} = require("../middleware/authMiddleware");
 // Public APIs
 router.get("/vendors", vendorController.getVendors);
 router.get("/globalMenu", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.fetchGlobalMenuList);
-router.get("/:id/menu", vendorController.getVendorMenu);
 router.get("/vendorsByArea", vendorController.getVendorsByArea);
+router.get("/:id/menu", vendorController.getVendorMenu);
+
 router.get("/vendors/:id", vendorController.getVendorById);
 router.get("/:phone", vendorController.getVendorByPhone);
 
