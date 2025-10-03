@@ -10,11 +10,19 @@ const {
 const { otpLimiter } = require("../middleware/rateLimit");
 
 // Auth
-router.post("/auth/request-otp", otpLimiter, validate(phoneSchema), c.requestOtp);
-router.post("/auth/verify-otp", validate(verifyOtpSchema), c.verifyOtp);
-router.post("/auth/refresh", validate(refreshSchema), c.refresh);
-router.post("/auth/logout", validate(refreshSchema), c.logout);
-router.post("/auth/admin", c.adminLogin);
+// router.post("/auth/request-otp", otpLimiter, validate(phoneSchema), c.requestOtp);
+// router.post("/auth/verify-otp", validate(verifyOtpSchema), c.verifyOtp);
+// router.post("/auth/refresh", validate(refreshSchema), c.refresh);
+// router.post("/auth/logout", validate(refreshSchema), c.logout);
+
+// user
+// router.post("/login", otpLimiter, validate(phoneSchema), c.userLogin);
+// router.post("/logout", validate(refreshSchema), c.logout);
+// router.post("/auth/verify-otp", validate(verifyOtpSchema), c.verifyUserOtp);
+// router.post("/auth/refresh", validate(refreshSchema), c.refreshToken);
+
+
+// router.post("/auth/admin", c.adminLogin);
 
 // Me
 router.get("/me", requireAuth, c.getMe);

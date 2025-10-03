@@ -1,5 +1,62 @@
 const vendorService = require("../services/vendorService");
 
+// vendor login
+// request OTP
+exports.vendorLogin = async (req, res, next) => {
+  try {
+    const { phone } = req.body;
+
+    const success = await generateAndStoreOtp(phone);
+
+    if (!success) {
+      return next(createHttpError(500, "Failed to generate OTP"));
+    }
+
+    res.json({ success: true, message: "OTP sent" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// verify OTP -> user login
+exports.verifyVendorOtp = async (req, res, next) => {
+  try {
+    const { phone, otp, role } = req.body;
+    const result = await verifyOtpService(phone, otp, role);
+
+    if (!result.ok) return next(createHttpError(400, result.reason));
+    res.json({ success: true, ...result });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// refresh tokens
+exports.refreshToken = async (req, res, next) => {
+  try {
+    const { refresh_token } = req.body;
+    const result = await rotateRefreshToken(refresh_token);
+
+    if (!result.ok) {
+      return next(createHttpError(401, result.reason));
+    }
+
+    res.json({ success: true, ...result });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// logout
+exports.logout = async (req, res, next) => {
+  try {
+    const { refresh_token } = req.body;
+    if (refresh_token) await revokeRefreshToken(refresh_token);
+    res.json({ success: true, message: "Logged out" });
+  } catch (err) { next(err); }
+};
+
+
 // Public
 exports.getVendors = async (req, res) => {
   try {
@@ -13,8 +70,8 @@ exports.getVendors = async (req, res) => {
 
 exports.getVendorsByArea = async (req, res) => {
   try {
-    const { area } = req.query;
-    const vendors = await vendorService.fetchVendorsByArea(area);
+    const { area, status } = req.query;
+    const vendors = await vendorService.fetchVendorsByArea(area, status);
     res.json(vendors);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -31,7 +88,18 @@ exports.getVendorById = async (req, res) => {
   }
 };
 
+exports.getVendorByPhone = async (req, res) => {
+  try {
+    const vendor = await vendorService.fetchVendorByPhone(req.params.phone);
+    if (!vendor) return res.status(404).json({ error: "Vendor not found with phone" });
+    res.json(vendor);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.getVendorMenu = async (req, res) => {
+  console.log(req.body)
   try {
     const menu = await vendorService.fetchVendorMenu(req.params.id);
     res.json(menu);
@@ -50,38 +118,17 @@ exports.getServices = async (req, res) => {
   }
 };
 
-// controllers/vendorController.js
+// vendor management
 exports.addVendor = async (req, res) => {
   try {
-    const {
-      name,
-      type,
-      address,
-      latitude,
-      longitude,
-      area,
-      is_open,
-      prep_time,
-      service_radius,
-      phone,
-      image_url,   // <-- directly from body
-    } = req.body;
+    console.log("Vendor register request:", req.body);
 
-    await vendorService.addVendor(
-      name,
-      type,
-      address,
-      latitude,
-      longitude,
-      area,
-      is_open,
-      prep_time,
-      service_radius,
-      phone,
-      image_url
-    );
+    const vendor = await vendorService.addVendor(req.body);
 
-    res.json({ message: "Vendor added successfully" });
+    res.status(201).json({
+      message: "Vendor added successfully",
+      vendor, // ✅ send the full vendor object back
+    });
   } catch (err) {
     console.error("Error adding vendor:", err);
     res.status(500).json({ error: err.message });
@@ -89,7 +136,7 @@ exports.addVendor = async (req, res) => {
 };
 
 
-// controllers/vendorController.js
+
 exports.updateVendorStatus = async (req, res) => {
   try {
     const {
@@ -119,12 +166,67 @@ exports.updateVendorStatus = async (req, res) => {
   }
 };
 
+exports.updateVendor = async (req, res) => {
+  console.log(req)
+  try {
+    const userId = req.user?.id || req.body.id; // Prefer JWT user.id, fallback to body
 
-exports.updateMenuItemForVendor = async (req, res) => {
+    console.log("userId: ", userId)
+    if (!userId) {
+      return res.status(400).json({ error: "Vendor ID is required" });
+    }
+
+    // Collect only the fields that were sent in PATCH
+    const {
+      service_radius,
+      prep_time,
+      fssai_lic,
+      image,
+      latitude,
+      longitude,
+      full_details_completed,
+      status
+    } = req.body;
+
+    console.log(
+      service_radius,
+      prep_time,
+      fssai_lic,
+      image,
+      latitude,
+      longitude,
+      full_details_completed,
+      status)
+    // Build an object of only provided fields
+    const updateData = {};
+    if (service_radius !== undefined) updateData.service_radius = service_radius;
+    if (prep_time !== undefined) updateData.prep_time = prep_time;
+    if (fssai_lic !== undefined) updateData.fssai_lic = fssai_lic;
+    if (image !== undefined) updateData.image_url = image; // normalize column name
+    if (latitude !== undefined) updateData.latitude = latitude;
+    if (longitude !== undefined) updateData.longitude = longitude;
+    if (full_details_completed != undefined) updateData.full_details_completed = full_details_completed;
+    if (status != undefined) updateData.status = status
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: "No fields provided for update" });
+    }
+
+    await vendorService.updateVendor(userId, updateData);
+
+    res.json({ status:200, message: "Vendor updated successfully" });
+  } catch (err) {
+    console.error("Error updating vendor:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// menu management
+exports.toggleAvailability = async (req, res) => {
   try {
     const { id } = req.params;
-    const { is_available, price } = req.body;
-    await vendorService.updateMenuItemForVendor(id, is_available, price);
+    const { availability } = req.body;
+    await vendorService.toggleAvailability(id, availability);
     res.json({ message: "Menu item updated for vendor" });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -132,9 +234,10 @@ exports.updateMenuItemForVendor = async (req, res) => {
 };
 
 exports.addMenuItemForVendor = async (req, res) => {
+  console.log(req.body)
   try {
-    const { vendorId, globalMenuId, description, price } = req.body;
-    await vendorService.addMenuItemForVendor(vendorId, globalMenuId, description, price);
+    const { vendorId, globalMenuId, category, description, sellingPrice, vendorPrice } = req.body;
+    await vendorService.addMenuItemForVendor(vendorId, globalMenuId, category, description, sellingPrice, vendorPrice);
     res.json({ message: "Menu item  for vendor" });
   } catch (err) {
     res.status(500).json({ error: err.message });

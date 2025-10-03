@@ -5,29 +5,39 @@ const {requireAuth, requireRole} = require("../middleware/authMiddleware");
 
 // Public APIs
 router.get("/vendors", vendorController.getVendors);
+router.get("/globalMenu", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.fetchGlobalMenuList);
+router.get("/:id/menu", vendorController.getVendorMenu);
 router.get("/vendorsByArea", vendorController.getVendorsByArea);
 router.get("/vendors/:id", vendorController.getVendorById);
-router.get("/vendors/:id/menu", vendorController.getVendorMenu);
+router.get("/:phone", vendorController.getVendorByPhone);
+
 router.get("/services", vendorController.getServices);
+
+// // vendor auth
+// router.post("/login", otpLimiter, validate(phoneSchema), c.vendorLogin);
+// router.post("/logout", validate(refreshSchema), c.logout);
+// router.post("/auth/verify-otp", validate(verifyOtpSchema), c.verifyVendoryOtp);
+// router.post("/auth/refresh", validate(refreshSchema), c.refreshToken);
 
 // routes/vendorRoutes.js
 router.post(
   "/",
-  requireAuth,
-  requireRole("VENDOR", "ADMIN"),
+  // requireAuth,
+  // requireRole("VENDOR", "ADMIN"),
   vendorController.addVendor
 );
 
 // routes/vendorRoutes.js
 router.patch(
-  "/vendor/status",
+  "/status",
   requireAuth,
   requireRole("VENDOR", "ADMIN"),
   vendorController.updateVendorStatus
 );
 
-router.patch("/vendor/menu/items/:id", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.updateMenuItemForVendor);
-router.post("/vendors/menu/items/add", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.addMenuItemForVendor);
-router.get("/globalMenu", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.fetchGlobalMenuList);
+router.patch("/setup", requireAuth, vendorController.updateVendor);
+
+router.patch("/menu/:id/toggle", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.toggleAvailability);
+router.post("/menu/add", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.addMenuItemForVendor);
 
 module.exports = router;
