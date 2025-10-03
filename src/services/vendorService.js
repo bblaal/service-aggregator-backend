@@ -31,7 +31,7 @@ exports.fetchVendorByPhone = async (phone) => {
 };
 
 exports.fetchVendorsByArea = async (area, status) => {
-  const { rows } = await pool.query("SELECT * FROM vendors WHERE service_area=$1 AND status=$2", [area, status]);
+  const { rows } = await pool.query("SELECT * FROM vendors WHERE area=$1 AND status=$2", [area, status]);
   return rows;
 };
 
