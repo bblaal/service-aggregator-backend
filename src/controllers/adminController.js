@@ -88,3 +88,26 @@ exports.uploadGlobalMenuFromExcel = async (req, res) => {
   }
 };
 
+exports.approveVendor = async (req, res) => {
+  try {
+    const {
+      id,
+      phone,
+      service_radius,
+      status,
+    } = req.body;
+
+    await adminService.approveVendor(
+      id,
+      phone,
+      service_radius,
+      status,
+    );
+
+    res.json({ message: "Vendor " + status });
+  } catch (err) {
+    console.error("Error in vendor:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+

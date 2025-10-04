@@ -42,6 +42,13 @@ router.post(
   adminController.uploadGlobalMenuFromExcel
 );
 
+router.patch(
+  "/approve/vendor",
+  requireAuth,
+  requireRole("ADMIN"),
+  adminController.approveVendor
+);
+
   router.get("/fetchServiceArea", adminController.fetchServiceArea)
 
   router.post("/checkServiceArea", adminController.checkServiceArea);

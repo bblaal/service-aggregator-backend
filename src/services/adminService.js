@@ -71,4 +71,24 @@ exports.checkServiceArea = async (lat, lng) => {
   return { serviceable, area, address };
 };
 
+exports.approveVendor = async (id,
+  phone,
+  service_radius,
+  status,) => {
+
+  if (!id) {
+    throw new Error("Vendor ID is required");
+  }
+
+  const query = `
+    UPDATE vendors
+    SET service_radius=$1, status=$2
+    WHERE id = $3 AND phone = $4;
+  `;
+
+  const { rows } = await pool.query(query, [service_radius, status, id, phone]);
+  return rows[0]; // return updated vendor
+
+};
+
   
