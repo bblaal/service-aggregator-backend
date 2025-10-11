@@ -27,30 +27,25 @@ exports.addNewServiceAreaPincode = async (pincode, area) => {
   };
 
 exports.checkServiceArea = async (lat, lng) => {
-  console.log(lat, lng)
   // 1. Reverse geocode
   const geoRes = await axios.get(
     `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`
   );
 
   if (!geoRes.data.results.length) {
-    console.log("No address found for location")
     throw new Error("No address found for location");
   }
 
   const address = geoRes.data.results[0].formatted_address;
 
-  console.log("addresses: ", address)
 
   // Try to extract locality/area
   const components = geoRes.data.results[0].address_components;
-  console.log("components: ", components)
 
   let area = null;
   for (let comp of components) {
     if (comp.types.includes("locality") || comp.types.includes("sublocality")) {
       area = comp.long_name;
-      console.log("area: ", area)
       break;
     }
   }

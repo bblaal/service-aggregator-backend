@@ -8,6 +8,8 @@ const userRoutes = require("./routes/userRoutes");
 const vendorRoutes = require("./routes/vendorRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const deliveryRoutes = require("./routes/deliveryRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const agentRoutes = require("./routes/agentRoutes");
 
 const app = express();
 app.use(cors({ origin: process.env.CORS_ORIGIN }));
@@ -23,6 +25,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/vendors", vendorRoutes);
 app.use("/api", adminRoutes);
 app.use("/api/delivery", deliveryRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/agents", agentRoutes);
 
 app.use(errorHandler);
 

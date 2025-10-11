@@ -32,55 +32,55 @@ async function generateAndStoreOtp(phone, ttlSec = process.env.OTP_TTL_SEC || 30
 // verify otp
 async function verifyOtpService(phone, otp, role = "USER") {
     try {
-        // 1. Check OTP
-        const { rows } = await pool.query(
-            `SELECT * FROM otps 
+      // 1. Check OTP
+      const { rows } = await pool.query(
+        `SELECT * FROM otps 
          WHERE phone = $1 AND consumed = false 
          ORDER BY created_at DESC LIMIT 1`,
-            [phone]
-        );
-        const row = rows[0];
-        if (!row) return { ok: false, reason: "OTP not requested" };
-
-        if (row.expires_at < new Date()) return { ok: false, reason: "OTP expired" };
-
-        if (row.code !== otp) {
-            await pool.query("UPDATE otps SET attempts = attempts + 1 WHERE id = $1", [row.id]);
-            if ((row.attempts + 1) >= Number(process.env.OTP_MAX_ATTEMPTS || 5)) {
-                await pool.query("UPDATE otps SET consumed = true WHERE id = $1", [row.id]);
-            }
-            return { ok: false, reason: "Invalid OTP" };
+        [phone]
+      );
+      const row = rows[0];
+      if (!row) return { ok: false, reason: "OTP not requested" };
+  
+      if (row.expires_at < new Date()) return { ok: false, reason: "OTP expired" };
+  
+      if (row.code !== otp) {
+        await pool.query("UPDATE otps SET attempts = attempts + 1 WHERE id = $1", [row.id]);
+        if ((row.attempts + 1) >= Number(process.env.OTP_MAX_ATTEMPTS || 5)) {
+          await pool.query("UPDATE otps SET consumed = true WHERE id = $1", [row.id]);
         }
-
-        await pool.query("UPDATE otps SET consumed = true WHERE id = $1", [row.id]);
-
-        // 2. Find or create user
-        let user = await findUserByPhone(phone);
-        if (!user) user = await createUser(phone, role);
-
-        // 3. Generate tokens
-        const accessToken = signAccessToken(user);
-        const refreshToken = signRefreshToken(user);
-
-        const refreshExp = new Date(Date.now() + ms(process.env.REFRESH_TOKEN_TTL || "30d"));
-        await storeRefreshToken(user.id, refreshToken, refreshExp);
-
-        return {
-            ok: true,
-            token: accessToken,
-            refresh_token: refreshToken,
-            user: {
-                id: user.id,
-                role: user.role,
-                phone: user.phone,
-                name: user.name,
-                email: user.email,
-            }
-        };
+        return { ok: false, reason: "Invalid OTP" };
+      }
+  
+      await pool.query("UPDATE otps SET consumed = true WHERE id = $1", [row.id]);
+  
+      // 2. Find or create user
+      let user = await findUserByPhone(phone);
+      if (!user) user = await createUser(phone, role);
+  
+      // 3. Always generate *fresh* tokens (so legacy users get refresh token too)
+      const accessToken = signAccessToken(user);
+      const refreshToken = signRefreshToken(user);
+  
+      const refreshExp = new Date(Date.now() + ms(process.env.REFRESH_TOKEN_TTL || "30d"));
+      await storeRefreshToken(user.id, refreshToken, refreshExp);
+  
+      return {
+        ok: true,
+        token: accessToken,
+        refresh_token: refreshToken,
+        user: {
+          id: user.id,
+          role: user.role,
+          phone: user.phone,
+          name: user.name,
+          email: user.email,
+        },
+      };
     } catch (err) {
-        throw err; // let caller handle
+      throw err;
     }
-}
+  }  
 
 // admin login
 async function authenticateAdmin(username, password) {
@@ -104,29 +104,45 @@ async function authenticateAdmin(username, password) {
 
 // REFRESH TOKENS
 async function rotateRefreshToken(oldRefreshToken) {
+    let payload = null;
+    try {
+      payload = verifyRefresh(oldRefreshToken);
+    } catch (err) {
+      console.log("Invalid or expired refresh token, trying fallback rotation...");
+    }
+  
+    let user = null;
+    if (payload?.sub) {
+      user = await getUserById(payload.sub);
 
-    if (!await isRefreshTokenActive(oldRefreshToken)) {
-        return { ok: false, reason: "Invalid refresh token" };
+    } else {
+      // Try fallback: maybe token was revoked, find any active one and re-issue
+      const row = await pool.query(
+        "SELECT * FROM refresh_tokens WHERE token = $1",
+        [oldRefreshToken]
+      );
+      if (row.rows[0]) {
+        user = await getUserById(row.rows[0].user_id);
+      }
     }
 
-    const payload = verifyRefresh(oldRefreshToken);
-    const user = await getUserById(payload.sub);
-    if (!user) return { ok: false, reason: "User not found" };
-
+    if (!user) return { ok: false, reason: "User not found or invalid token" };
+  
     const newAccess = signAccessToken(user);
     const newRefresh = signRefreshToken(user);
-
-    // rotate: revoke old and store new
-    await revokeRefreshToken(oldRefreshToken);
+  
+    // Revoke old (if exists)
+    await pool.query("UPDATE refresh_tokens SET revoked = true WHERE token = $1", [oldRefreshToken]);
+  
     const refreshExp = new Date(Date.now() + ms(process.env.REFRESH_TOKEN_TTL || "30d"));
     await storeRefreshToken(user.id, newRefresh, refreshExp);
-
+  
     return {
-        ok: true,
-        token: newAccess,
-        refresh_token: newRefresh,
+      ok: true,
+      token: newAccess,
+      refresh_token: newRefresh,
     };
-}
+  }
 
 async function storeRefreshToken(userId, token, expiresAt) {
     const id = uuidv4();

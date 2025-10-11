@@ -1,11 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const orderController = require("../controllers/orderController");
-const requireAuth = require("../middleware/auth");
-const { requireRole } = require("../middleware/authMiddleware");
+const { requireAuth, requireRole } = require("../middleware/authMiddleware");
+
+
+
+// order for vendor
+router.get("/:vendorId", requireAuth, requireRole("VENDOR"), orderController.getOrdersByVendor);
 
 // Food orders
-router.post("/v1/orders/food", requireAuth, orderController.createFoodOrder);
+router.post("/create", orderController.createFoodOrder);
 router.get("/v1/orders/:id", requireAuth, orderController.getOrderById);
 router.get("/v1/orders", requireAuth, orderController.getOrders);
 router.patch("/v1/orders/:id", requireAuth, orderController.updateOrderStatus);

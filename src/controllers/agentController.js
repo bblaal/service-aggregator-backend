@@ -1,4 +1,4 @@
-const vendorService = require("../services/vendorService");
+const agentService = require("../services/agentService");
 
 // vendor login
 // request OTP
@@ -58,11 +58,11 @@ exports.logout = async (req, res, next) => {
 
 
 // Public
-exports.getVendors = async (req, res) => {
+exports.getAgents = async (req, res) => {
   try {
     const { type, lat, lng, radius } = req.query;
-    const vendors = await vendorService.fetchVendors(type, lat, lng, radius);
-    res.json(vendors);
+    const agents = await agentService.fetchAgents(type, lat, lng, radius);
+    res.json(agents);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -88,11 +88,11 @@ exports.getVendorById = async (req, res) => {
   }
 };
 
-exports.getVendorByPhone = async (req, res) => {
+exports.getAgentByPhone = async (req, res) => {
   try {
-    const vendor = await vendorService.fetchVendorByPhone(req.params.phone);
-    if (!vendor) return res.status(404).json({ error: "Vendor not found with phone" });
-    res.json(vendor);
+    const agent = await agentService.fetchAgentByPhone(req.params.phone);
+    if (!agent) return res.status(404).json({ error: "Agent not found with phone" });
+    res.json(agent);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -117,17 +117,17 @@ exports.getServices = async (req, res) => {
   }
 };
 
-// vendor management
-exports.addVendor = async (req, res) => {
+// agent management
+exports.addAgent = async (req, res) => {
   try {
-    const vendor = await vendorService.addVendor(req.body);
+    const agent = await agentService.addAgent(req.body);
 
     res.status(201).json({
-      message: "Vendor added successfully",
-      vendor, // ✅ send the full vendor object back
+      message: "Agent added successfully",
+      agent, // ✅ send the full agent object back
     });
   } catch (err) {
-    console.error("Error adding vendor:", err);
+    console.error("Error adding agent:", err);
     res.status(500).json({ error: err.message });
   }
 };

@@ -31,7 +31,7 @@ async function updateUserProfile(userId, data) {
   await pool.query(`UPDATE users SET ${fields.join(", ")} WHERE id = $${values.length}`, values);
 }
 async function getUserById(id) {
-  const r = await pool.query("SELECT id, phone, name, email, created_at FROM users WHERE id = $1", [id]);
+  const r = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
   return r.rows[0];
 }
 

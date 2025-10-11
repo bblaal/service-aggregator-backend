@@ -36,7 +36,6 @@ exports.fetchVendorsByArea = async (area, status) => {
 };
 
 exports.fetchVendorMenu = async (vendorId) => {
-  console.log(vendorId)
   const { rows } = await pool.query("SELECT vm.*, gm.name, gm.imageurl FROM vendor_menu vm JOIN global_menu gm ON vm.global_menu_id = gm.id WHERE vm.vendor_id = $1;", [vendorId]);
   return rows;
 };
@@ -154,17 +153,6 @@ exports.addVendor = async (body) => {
     throw new Error(`User with phone ${phone} not found`);
   }
 
-  console.log(user.id,
-    phone,
-    type,
-    area,
-    name,
-    address,
-    latitude,
-    longitude,
-    prep_time,
-    service_radius,
-    image_url)
   const result = await pool.query(
     `INSERT INTO vendors 
       (user_id, phone, type, area, name, address, latitude, longitude, prep_time, service_radius, image_url)
@@ -194,4 +182,16 @@ exports.addVendor = async (body) => {
 exports.fetchGlobalMenuList = async () => {
   const { rows } = await pool.query("SELECT * FROM global_menu")
   return rows;
+};
+
+
+exports.savePushToken = async (vendorId, token) => {
+  const query = `
+    INSERT INTO vendor_push_tokens (vendor_id, token, updated_at)
+    VALUES ($1, $2, NOW())
+    ON CONFLICT (vendor_id)
+    DO UPDATE SET token = EXCLUDED.token, updated_at = NOW();
+  `;
+
+  await pool.query(query, [vendorId, token]);
 };

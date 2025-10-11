@@ -2,13 +2,45 @@ const orderService = require("../services/orderService");
 
 exports.createFoodOrder = async (req, res) => {
   try {
-    const { vendor_id, items, address_id, lat, lng, notes } = req.body;
-    const order = await orderService.createFoodOrder(req.user.id, { vendor_id, items, address_id, lat, lng, notes });
-    res.json(order);
+    const { vendor_id, order_type, items, address_id, lat, lng, notes } = req.body;
+    const { user_id } = req.body;
+
+    // Basic validation
+    if (!vendor_id) {
+      return res.status(400).json({ error: "vendor_id is required" });
+    }
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: "items array is required" });
+    }
+
+    // Call service method
+    const order = await orderService.createFoodOrder(user_id, {
+      vendor_id,
+      order_type,
+      items,
+      address_id: address_id || null,
+      lat: lat || null,
+      lng: lng || null,
+      notes: notes || "",
+    });
+
+    // Success response
+    return res.status(201).json({
+      success: true,
+      message: "Order created successfully",
+      data: order,
+    });
+
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error("Error creating food order:", err.message);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to create order",
+      details: err.message,
+    });
   }
 };
+
 
 exports.confirmPayment = async (req, res) => {
   try {
@@ -29,6 +61,16 @@ exports.getOrderById = async (req, res) => {
   }
 };
 
+
+exports.getOrdersByVendor = async (req, res) => {
+  try {
+    const { vendorId } = req.params;
+    const orders = await orderService.getOrdersByVendor(vendorId);
+    res.json(orders);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
 exports.getOrders = async (req, res) => {
   try {
     const { type, status, mine } = req.query;

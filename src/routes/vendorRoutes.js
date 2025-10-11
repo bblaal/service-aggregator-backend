@@ -4,6 +4,7 @@ const vendorController = require("../controllers/vendorController");
 const {requireAuth, requireRole} = require("../middleware/authMiddleware");
 
 // Public APIs
+router.post("/savePushToken", vendorController.savePushToken);
 router.get("/vendors", vendorController.getVendors);
 router.get("/globalMenu", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.fetchGlobalMenuList);
 router.get("/vendorsByArea", vendorController.getVendorsByArea);
