@@ -70,15 +70,16 @@ exports.uploadGlobalMenuFromExcel = async (req, res) => {
     const rows = XLSX.utils.sheet_to_json(sheet);
 
     // validate structure
-    if (!rows.length || !rows[0].name || !rows[0].imageUrl) {
-      return res.status(400).json({ error: "Excel must have columns: name, imageUrl" });
+    if (!rows.length || !rows[0].name || !rows[0].category || !rows[0].imageUrl) {
+      return res.status(400).json({ error: "Excel must have columns: name, category, imageUrl" });
     }
 
     // insert all rows into DB
     for (const row of rows) {
       const name = row.name;
       const imageUrl = row.imageUrl;
-      await adminService.addGlobalMenuItem(name, imageUrl);
+      const category = row.category;
+      await adminService.addGlobalMenuItem(name, category, imageUrl);
     }
 
     res.json({ message: `${rows.length} items added to global menu` });

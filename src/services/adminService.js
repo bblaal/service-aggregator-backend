@@ -3,10 +3,10 @@ const axios = require("axios");
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
-exports.addGlobalMenuItem = async (menuName, imageUrl) => {
+exports.addGlobalMenuItem = async (menuName, category, imageUrl) => {
   await pool.query(
-    "INSERT INTO global_menu (name, imageurl) VALUES ($1, $2)",
-    [menuName, imageUrl]
+    "INSERT INTO global_menu (name, category, imageurl) VALUES ($1, $2, $3)",
+    [menuName, category, imageUrl]
   );
 };
 
