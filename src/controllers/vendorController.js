@@ -89,7 +89,6 @@ exports.getVendorById = async (req, res) => {
 };
 
 exports.getVendorByPhone = async (req, res) => {
-  console.log("Fetching vendor with phone:", req.params.phone);
   try {
     const vendor = await vendorService.fetchVendorByPhone(req.params.phone);
     if (!vendor) return res.status(404).json({ error: "Vendor not found with phone" });

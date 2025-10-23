@@ -10,6 +10,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const deliveryRoutes = require("./routes/deliveryRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const agentRoutes = require("./routes/agentRoutes");
+const servicesRoutes = require("./routes/servicesRoutes");
 
 const app = express();
 app.use(cors({ origin: process.env.CORS_ORIGIN }));
@@ -27,6 +28,7 @@ app.use("/api", adminRoutes);
 app.use("/api/delivery", deliveryRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/agents", agentRoutes);
+app.use("/api/services", servicesRoutes);
 
 app.use(errorHandler);
 

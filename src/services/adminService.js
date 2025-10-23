@@ -83,7 +83,6 @@ exports.checkServiceArea = async (lat, lng) => {
     }
   }
 
-  console.log(`Serviceability check: ${serviceable ? "Serviceable" : "Not Serviceable"} - Matched Area: ${matchedArea}`);
   return {
     serviceable,
     matchedArea: matchedArea || locality || sublocality,

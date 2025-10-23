@@ -184,7 +184,6 @@ ORDER BY o.created_at DESC;
 
 exports.getAllPendingOrders = async (orderStatus) => {
   try {
-    console.log("Fetching all pending orders with status:", orderStatus);
     const result = await pool.query(
       `SELECT 
     o.id AS order_id,
@@ -212,7 +211,6 @@ ORDER BY o.created_at DESC;
       [orderStatus]
     );
 
-    console.log("Pending orders fetched:", result.rows);
     if (result.rowCount === 0) throw new Error("Orders not found");
     return result.rows;
   } catch (err) {

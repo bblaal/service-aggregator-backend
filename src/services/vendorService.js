@@ -36,7 +36,6 @@ exports.fetchVendorsByArea = async (area, status) => {
 };
 
 exports.fetchVendorMenu = async (vendorId) => {
-  console.log(vendorId)
   const { rows } = await pool.query(
     "SELECT vm.id AS item_id, vm.vendor_id, vm.description, vm.selling_price, vm.vendor_price, vm.availability, gm.name, gm.imageUrl, gm.category FROM vendor_menu vm JOIN global_menu gm ON vm.global_menu_id = gm.id WHERE vm.vendor_id = $1;", [vendorId]);
   return rows;

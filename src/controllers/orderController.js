@@ -2,7 +2,6 @@ const orderService = require("../services/orderService");
 
 exports.createFoodOrder = async (req, res) => {
   try {
-    console.log("Request Body:", req.body);
     const { vendor_id, order_type, items, address_id, lat, lng, notes } = req.body;
     const { user_id } = req.body;
 
@@ -86,7 +85,6 @@ exports.getOrdersByUser = async (req, res) => {
 exports.getAllPendingOrders = async (req, res) => {
   try {
     const { orderStatus, createdDate} = req.query;
-    console.log("Query Params:", req.query);
     const orders = await orderService.getAllPendingOrders(orderStatus, createdDate);
     res.json(orders);
   } catch (err) {

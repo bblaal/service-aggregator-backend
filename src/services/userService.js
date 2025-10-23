@@ -63,7 +63,6 @@ async function listAreaAddresses(userId, area) {
     "SELECT * FROM addresses WHERE user_id = $1 AND area = $2 ORDER BY created_at DESC",
     [userId, area]
   );
-  console.log(r.rows);
   return r.rows;
 }
 
