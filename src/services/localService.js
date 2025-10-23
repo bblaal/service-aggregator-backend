@@ -1,15 +1,23 @@
 const pool = require("../config/db");
 
 
-// exports.addNewServiceAreaPincode = async (pincode, area) => {
-//   await pool.query(
-//     "INSERT INTO service_area (pincode, area) VALUES ($1, $2)",
-//     [pincode, area]
-//   );
-// };
+exports.addService = async (payload) => {
+    const { name, category, description, address, phone, icon, area } = payload;
+    await pool.query(
+        `INSERT INTO services (category, name, phone, address, description, area, icon)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [category, name, phone, address, description, area, icon]
+    );
+};
 
-exports.getServicesByArea = async (area) => {
+exports.getServicesCategoryByArea = async (area) => {
   const result = await pool.query("SELECT DISTINCT category, icon, id FROM services WHERE area = $1", [area]);
+
+  return result.rows
+};
+
+exports.getAllServicesByArea = async (area) => {
+  const result = await pool.query("SELECT * FROM services WHERE area = $1", [area]);
 
   return result.rows
 };

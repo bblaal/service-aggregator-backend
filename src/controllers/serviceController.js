@@ -1,35 +1,44 @@
 const servicesService = require("../services/localService");
 
-// exports.addNewServiceAreaPincode = async (req, res) => {
-//     try {
-//       const { area, pincode } = req.body;
-//       await adminService.addNewServiceAreaPincode(pincode, area);
-//       res.json({ message: "New Area added" });
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
-
-  exports.getServicesByArea = async (req, res) => {
+exports.addService = async (req, res) => {
     try {
-      const area = req.params.area;
-      const result = await servicesService.getServicesByArea(area);
-      res.json(result);
+        await servicesService.addService(req.body);
+        res.json({ message: "New Service added" });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message });
     }
-  };
+};
 
-  exports.getServicesByCategoryAndArea = async (req, res) => {
+exports.getServicesCategoryByArea = async (req, res) => {
     try {
-      const area = req.params.area;
-      const category = req.params.category;
-      const result = await servicesService.getServicesByCategoryAndArea(area, category);
-      res.json(result);
+        const area = req.params.area;
+        const result = await servicesService.getServicesCategoryByArea(area);
+        res.json(result);
     } catch (err) {
-      res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message });
     }
-  };
+};
 
-  
+exports.getAllServicesByArea = async (req, res) => {
+    try {
+        const area = req.params.area;
+        const result = await servicesService.getAllServicesByArea(area);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.getServicesByCategoryAndArea = async (req, res) => {
+    try {
+        const area = req.params.area;
+        const category = req.params.category;
+        const result = await servicesService.getServicesByCategoryAndArea(area, category);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+
 
