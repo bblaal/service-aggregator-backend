@@ -30,12 +30,8 @@ router.post(
 );
 
 // routes/vendorRoutes.js
-// router.patch(
-//   "/status",
-//   requireAuth,
-//   requireRole("VENDOR", "ADMIN"),
-//   vendorController.updateVendorStatus
-// );
+router.patch("/update", requireAuth, requireRole("AGENT", "ADMIN"), agentController.updateAgentDetails
+);
 
 // router.patch("/setup", requireAuth, vendorController.updateVendor);
 

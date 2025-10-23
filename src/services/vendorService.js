@@ -36,7 +36,9 @@ exports.fetchVendorsByArea = async (area, status) => {
 };
 
 exports.fetchVendorMenu = async (vendorId) => {
-  const { rows } = await pool.query("SELECT vm.*, gm.name, gm.imageurl FROM vendor_menu vm JOIN global_menu gm ON vm.global_menu_id = gm.id WHERE vm.vendor_id = $1;", [vendorId]);
+  console.log(vendorId)
+  const { rows } = await pool.query(
+    "SELECT vm.id AS item_id, vm.vendor_id, vm.description, vm.selling_price, vm.vendor_price, vm.availability, gm.name, gm.imageUrl, gm.category FROM vendor_menu vm JOIN global_menu gm ON vm.global_menu_id = gm.id WHERE vm.vendor_id = $1;", [vendorId]);
   return rows;
 };
 
@@ -125,12 +127,20 @@ exports.updateMenuItemForVendor = async (id, availability, description, sellingP
   );
 };
 
-exports.addMenuItemForVendor = async (vendorId, globalMenuId, category, description, sellingPrice, vendorPrice) => {
+exports.addMenuItemForVendor = async (vendorId, globalMenuId, description, sellingPrice, vendorPrice) => {
   await pool.query(
-    "INSERT INTO vendor_menu (vendor_id, global_menu_id, category, description, selling_price, vendor_price, availability) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-    [vendorId, globalMenuId, category, description, sellingPrice, vendorPrice, true]
+    "INSERT INTO vendor_menu (vendor_id, global_menu_id, description, selling_price, vendor_price, availability) VALUES ($1, $2, $3, $4, $5, $6)",
+    [vendorId, globalMenuId, description, sellingPrice, vendorPrice, true]
   );
 };
+
+exports.deleteMenuItemForVendor = async (menuId, vendorId) => {
+  await pool.query(
+    "DELETE FROM vendor_menu WHERE id = $1 AND vendor_id = $2",
+    [menuId, vendorId]
+  );
+};
+
 
 // services/vendorService.js
 exports.addVendor = async (body) => {

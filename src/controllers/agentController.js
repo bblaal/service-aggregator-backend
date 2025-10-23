@@ -134,31 +134,25 @@ exports.addAgent = async (req, res) => {
 
 
 
-exports.updateVendorStatus = async (req, res) => {
+exports.updateAgentDetails = async (req, res) => {
   try {
     const {
       id,
       name,
       phone,
-      service_radius,
-      is_open,
-      prep_time,
-      image_url,   // <-- take directly from body
+      address
     } = req.body;
 
-    await vendorService.updateVendorStatus(
+    await agentService.updateAgentDetails(
       id,
       name,
       phone,
-      service_radius,
-      is_open,
-      prep_time,
-      image_url
+      address
     );
 
-    res.json({ message: "Vendor updated" });
+    res.json({ message: "Agent details updated" });
   } catch (err) {
-    console.error("Error updating vendor:", err);
+    console.error("Error updating agent:", err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -200,7 +194,7 @@ exports.updateVendor = async (req, res) => {
 
     await vendorService.updateVendor(userId, updateData);
 
-    res.json({ status:200, message: "Vendor updated successfully" });
+    res.json({ status: 200, message: "Vendor updated successfully" });
   } catch (err) {
     console.error("Error updating vendor:", err);
     res.status(500).json({ error: err.message });

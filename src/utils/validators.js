@@ -22,6 +22,7 @@ const addressCreateSchema = Joi.object({
   line1: Joi.string().required(),
   line2: Joi.string().allow("", null),
   city: Joi.string().required(),
+  area: Joi.string().required(),
   state: Joi.string().required(),
   pincode: Joi.string().required(),
   is_default: Joi.boolean().optional()
@@ -31,6 +32,7 @@ const addressUpdateSchema = Joi.object({
   line1: Joi.string(),
   line2: Joi.string().allow("", null),
   city: Joi.string(),
+    area: Joi.string().required(),
   state: Joi.string(),
   pincode: Joi.string(),
   is_default: Joi.boolean()

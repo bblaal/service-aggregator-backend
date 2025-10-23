@@ -2,6 +2,7 @@ const orderService = require("../services/orderService");
 
 exports.createFoodOrder = async (req, res) => {
   try {
+    console.log("Request Body:", req.body);
     const { vendor_id, order_type, items, address_id, lat, lng, notes } = req.body;
     const { user_id } = req.body;
 
@@ -71,6 +72,28 @@ exports.getOrdersByVendor = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+exports.getOrdersByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const orders = await orderService.getOrdersByUser(userId);
+    res.json(orders);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+exports.getAllPendingOrders = async (req, res) => {
+  try {
+    const { orderStatus, createdDate} = req.query;
+    console.log("Query Params:", req.query);
+    const orders = await orderService.getAllPendingOrders(orderStatus, createdDate);
+    res.json(orders);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 exports.getOrders = async (req, res) => {
   try {
     const { type, status, mine } = req.query;

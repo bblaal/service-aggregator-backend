@@ -89,6 +89,7 @@ exports.getVendorById = async (req, res) => {
 };
 
 exports.getVendorByPhone = async (req, res) => {
+  console.log("Fetching vendor with phone:", req.params.phone);
   try {
     const vendor = await vendorService.fetchVendorByPhone(req.params.phone);
     if (!vendor) return res.status(404).json({ error: "Vendor not found with phone" });
@@ -221,9 +222,19 @@ exports.toggleAvailability = async (req, res) => {
 
 exports.addMenuItemForVendor = async (req, res) => {
   try {
-    const { vendorId, globalMenuId, category, description, sellingPrice, vendorPrice } = req.body;
-    await vendorService.addMenuItemForVendor(vendorId, globalMenuId, category, description, sellingPrice, vendorPrice);
+    const { vendorId, globalMenuId, description, sellingPrice, vendorPrice } = req.body;
+    await vendorService.addMenuItemForVendor(vendorId, globalMenuId, description, sellingPrice, vendorPrice);
     res.json({ message: "Menu item  for vendor" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.deleteMenuItemForVendor = async (req, res) => {
+  try {
+    const { menuId, vendorId } = req.params;
+    await vendorService.deleteMenuItemForVendor(menuId, vendorId);
+    res.json({ message: "Menu item for vendor deleted" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

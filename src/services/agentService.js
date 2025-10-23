@@ -59,31 +59,24 @@ exports.fetchServices = async (category, city) => {
     return rows;
 };
 
-// services/vendorService.js
-exports.updateVendorStatus = async (
+exports.updateAgentDetails = async (
     id,
     name,
     phone,
-    service_radius,
-    is_open,
-    prep_time,
-    image_url
+    address
 ) => {
     await pool.query(
-        `UPDATE vendors
+        `UPDATE agents
      SET 
        name = $1,
        phone = $2,
-       service_radius = $3,
-       is_open = $4,
-       prep_time = $5,
-       image_url = $6
-     WHERE id = $7`,
-        [name, phone, service_radius, is_open, prep_time, image_url, id]
+       address = $3
+     WHERE id = $4`,
+        [name, phone, address, id]
     );
 };
 
-exports.updateVendor = async (userId, updateData) => {
+exports.updateAgent = async (userId, updateData) => {
     if (!userId) {
         throw new Error("Vendor ID is required");
     }

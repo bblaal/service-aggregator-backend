@@ -30,7 +30,9 @@ router.put("/me", requireAuth, validate(updateProfileSchema), c.updateMe);
 
 // Addresses
 router.get("/addresses", requireAuth, c.listAddresses);
-router.post("/addresses", requireAuth, validate(addressCreateSchema), c.createAddress);
+
+router.get("/:userId/addresses/:area", requireAuth, c.listAreaAddresses);
+router.post("/:userId/addresses", requireAuth, validate(addressCreateSchema), c.createAddress);
 router.put("/addresses/:id", requireAuth, validate(addressUpdateSchema), c.updateAddress);
 router.delete("/addresses/:id", requireAuth, c.deleteAddress);
 

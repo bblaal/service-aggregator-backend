@@ -1,6 +1,6 @@
 const {
   updateUserProfile, getUserById,
-  addAddress, listAddresses, updateAddress, deleteAddress
+  addAddress, listAddresses, listAreaAddresses, updateAddress, deleteAddress
 } = require("../services/userService");
 
 // me
@@ -22,13 +22,20 @@ exports.updateMe = async (req, res, next) => {
 // addresses
 exports.createAddress = async (req, res, next) => {
   try {
-    const addr = await addAddress(req.user.id, req.body);
+    const addr = await addAddress(req.params.userId, req.body);
     res.status(201).json({ success: true, address: addr });
   } catch (err) { next(err); }
 };
 exports.listAddresses = async (req, res, next) => {
   try {
     const list = await listAddresses(req.user.id);
+    res.json(list);
+  } catch (err) { next(err); }
+};
+
+exports.listAreaAddresses = async (req, res, next) => {
+  try {
+    const list = await listAreaAddresses(req.params.userId, req.params.area);
     res.json(list);
   } catch (err) { next(err); }
 };

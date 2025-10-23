@@ -8,6 +8,12 @@ const { requireAuth, requireRole } = require("../middleware/authMiddleware");
 // order for vendor
 router.get("/:vendorId", requireAuth, requireRole("VENDOR"), orderController.getOrdersByVendor);
 
+
+router.get("/user/:userId", orderController.getOrdersByUser);
+
+// orders for delivery agent to accept
+router.get("/", requireAuth, requireRole("AGENT"), orderController.getAllPendingOrders);
+
 // Food orders
 router.post("/create", orderController.createFoodOrder);
 router.get("/v1/orders/:id", requireAuth, orderController.getOrderById);

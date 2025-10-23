@@ -41,5 +41,6 @@ router.patch("/setup", requireAuth, vendorController.updateVendor);
 
 router.patch("/menu/:id/toggle", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.toggleAvailability);
 router.post("/menu/add", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.addMenuItemForVendor);
+router.delete(":vendorId/menu/:menuId", requireAuth, requireRole("VENDOR", "ADMIN"), vendorController.deleteMenuItemForVendor);
 
 module.exports = router;

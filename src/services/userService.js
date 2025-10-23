@@ -38,14 +38,14 @@ async function getUserById(id) {
 
 // ADDRESSES
 async function addAddress(userId, payload) {
-  if (payload.is_default) {
-    await pool.query("UPDATE addresses SET is_default = false WHERE user_id = $1", [userId]);
-  }
+  // if (payload.is_default) {
+  //   await pool.query("UPDATE addresses SET is_default = false WHERE user_id = $1", [userId]);
+  // }
   const r = await pool.query(
-    `INSERT INTO addresses (user_id, line1, line2, city, state, pincode, is_default)
-     VALUES ($1,$2,$3,$4,$5,$6,$7)
+    `INSERT INTO addresses (user_id, line1, line2, city, state, pincode, is_default, area)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
      RETURNING *`,
-    [userId, payload.line1, payload.line2 || null, payload.city, payload.state, payload.pincode, !!payload.is_default]
+    [userId, payload.line1, payload.line2 || null, payload.city, payload.state, payload.pincode, false, payload.area]
   );
   return r.rows[0];
 }
@@ -55,6 +55,15 @@ async function listAddresses(userId) {
     "SELECT * FROM addresses WHERE user_id = $1 ORDER BY created_at DESC",
     [userId]
   );
+  return r.rows;
+}
+
+async function listAreaAddresses(userId, area) {
+  const r = await pool.query(
+    "SELECT * FROM addresses WHERE user_id = $1 AND area = $2 ORDER BY created_at DESC",
+    [userId, area]
+  );
+  console.log(r.rows);
   return r.rows;
 }
 
@@ -87,5 +96,5 @@ module.exports = {
   // user
   findUserByPhone, createUser, updateUserProfile, getUserById, updateUserRoleAsVendor,
   // addresses
-  addAddress, listAddresses, updateAddress, deleteAddress
+  addAddress, listAddresses, listAreaAddresses, updateAddress, deleteAddress
 };

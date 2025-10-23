@@ -76,7 +76,7 @@ exports.createFoodOrder = async (
         `Order #${orderId} | Amount: ₹${totalVendor}`,
         { orderId }
       );
-    } 
+    }
 
     await client.query("COMMIT");
 
@@ -143,6 +143,82 @@ ORDER BY o.created_at DESC;
   );
   if (result.rowCount === 0) throw new Error("Orders not found");
   return result.rows;
+};
+
+exports.getOrdersByUser = async (userId) => {
+  try {
+    const result = await pool.query(
+      `SELECT 
+    o.id AS order_id,
+    o.order_type,
+    o.order_status,
+    o.total_selling_amount,
+    o.payment_mode,
+    o.created_at AS order_datetime,
+    json_agg(
+        json_build_object(
+            'item_name', gm.name,
+            'quantity', oi.quantity,
+            'unit_selling_price', oi.unit_selling_price,
+            'total_selling_price', oi.total_selling_price
+        ) ORDER BY oi.id
+    ) AS items
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN vendor_menu vm ON vm.id = oi.menu_item_id
+JOIN global_menu gm ON gm.id = vm.global_menu_id
+WHERE o.user_id = $1
+GROUP BY o.id
+ORDER BY o.created_at DESC;
+`,
+      [userId]
+    );
+    if (result.rowCount === 0) throw new Error("Orders not found");
+    return result.rows;
+  } catch (err) {
+    console.error("Error fetching orders by user:", err);
+    throw err;
+  }
+};
+
+
+exports.getAllPendingOrders = async (orderStatus) => {
+  try {
+    console.log("Fetching all pending orders with status:", orderStatus);
+    const result = await pool.query(
+      `SELECT 
+    o.id AS order_id,
+    o.order_type,
+    o.order_status,
+    o.vendor_paid_status,
+    o.total_selling_amount,
+    o.payment_mode,
+    o.created_at AS order_datetime,
+    json_agg(
+        json_build_object(
+            'item_name', gm.name,
+            'quantity', oi.quantity
+        ) ORDER BY oi.id
+    ) AS items
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN vendor_menu vm ON vm.id = oi.menu_item_id
+JOIN global_menu gm ON gm.id = vm.global_menu_id
+WHERE o.order_status = $1
+AND o.created_at >= NOW() - INTERVAL '1 day'
+GROUP BY o.id
+ORDER BY o.created_at DESC;
+`,
+      [orderStatus]
+    );
+
+    console.log("Pending orders fetched:", result.rows);
+    if (result.rowCount === 0) throw new Error("Orders not found");
+    return result.rows;
+  } catch (err) {
+    console.error("Error fetching pending orders:", err);
+    throw err;
+  }
 };
 
 
