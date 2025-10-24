@@ -11,7 +11,7 @@ exports.addService = async (payload) => {
 };
 
 exports.getServicesCategoryByArea = async (area) => {
-  const result = await pool.query("SELECT DISTINCT category, icon, id FROM services WHERE area = $1", [area]);
+  const result = await pool.query("SELECT DISTINCT category, icon FROM services WHERE area = $1", [area]);
 
   return result.rows
 };
