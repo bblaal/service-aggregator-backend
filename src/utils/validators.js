@@ -6,7 +6,7 @@ const phoneSchema = Joi.object({
 
 const verifyOtpSchema = Joi.object({
   phone: Joi.string().trim().pattern(/^\+?[0-9]{8,15}$/).required(),
-  otp: Joi.string().trim().length(6).required()
+  otp: Joi.string().trim().length(4).required()
 });
 
 const refreshSchema = Joi.object({

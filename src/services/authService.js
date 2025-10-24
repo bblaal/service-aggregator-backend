@@ -9,7 +9,7 @@ const ms = require("ms");
 // generate otp
 async function generateAndStoreOtp(phone, ttlSec = process.env.OTP_TTL_SEC || 300) {
     try {
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const code = Math.floor(1000 + Math.random() * 9000).toString();
         const expiresAt = new Date(Date.now() + Number(ttlSec) * 1000);
 
         await pool.query(
