@@ -107,7 +107,16 @@ exports.approveVendor = async (id,
     WHERE id = $3 AND phone = $4;
   `;
 
+  const query1 = `
+    UPDATE users
+    SET ROLE=$1
+    WHERE phone = $2;
+  `;
+
+
   const { rows } = await pool.query(query, [service_radius, status, id, phone]);
+  const { res } = await pool.query(query1, ["VENDOR", phone]);
+
   return rows[0]; // return updated vendor
 
 };
