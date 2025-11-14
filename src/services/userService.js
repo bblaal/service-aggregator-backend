@@ -42,10 +42,10 @@ async function addAddress(userId, payload) {
   //   await pool.query("UPDATE addresses SET is_default = false WHERE user_id = $1", [userId]);
   // }
   const r = await pool.query(
-    `INSERT INTO addresses (user_id, line1, line2, city, state, pincode, is_default, area)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+    `INSERT INTO addresses (user_id, line1, line2, city, state, pincode, is_default, area, latitude, longitude)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8, $9,$10)
      RETURNING *`,
-    [userId, payload.line1, payload.line2 || null, payload.city, payload.state, payload.pincode, false, payload.area]
+    [userId, payload.line1, payload.line2 || null, payload.city, payload.state, payload.pincode, false, payload.area, payload.latitude, payload.longitude]
   );
   return r.rows[0];
 }
