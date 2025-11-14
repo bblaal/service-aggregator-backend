@@ -110,8 +110,9 @@ exports.getOrderById = async (orderId, userId) => {
 };
 
 exports.getOrdersByVendor = async (vendorId) => {
-  const result = await pool.query(
-    `SELECT 
+  try {
+    const result = await pool.query(
+      `SELECT 
     o.id AS order_id,
     o.order_type,
     o.order_status,
@@ -139,10 +140,13 @@ WHERE o.vendor_id = $1
 GROUP BY o.id
 ORDER BY o.created_at DESC;
 `,
-    [vendorId]
-  );
-  if (result.rowCount === 0) throw new Error("Orders not found");
-  return result.rows;
+      [vendorId]
+    );
+    return result.rows;
+  } catch (err) {
+    console.error("Error fetching orders by vendor:", err);
+    throw err;
+  }
 };
 
 exports.getOrdersByUser = async (userId) => {
@@ -189,6 +193,7 @@ exports.getAllPendingOrders = async (orderStatus) => {
     o.id AS order_id,
     o.order_type,
     o.order_status,
+    o.lat,o.long,
     o.vendor_paid_status,
     o.total_selling_amount,
     o.payment_mode,
