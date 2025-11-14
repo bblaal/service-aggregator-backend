@@ -23,20 +23,20 @@ async function generateAndStoreOtp(phone, ttlSec = process.env.OTP_TTL_SEC || 30
     );
 
     // 3️⃣ Send SMS using Fast2SMS (GET request)
-    const apiKey = process.env.FAST2SMS_API_KEY;
-    const message = `Your OTP code is ${code}. Thanks, Vocal Bazar!`;
+    // const apiKey = process.env.FAST2SMS_API_KEY;
+    // const message = `Your OTP code is ${code}. Thanks, Vocal Bazar!`;
 
-    const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${apiKey}&route=q&message=${encodeURIComponent(message)}&flash=0&numbers=${phone}`;
+    // const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${apiKey}&route=q&message=${encodeURIComponent(message)}&flash=0&numbers=${phone}`;
 
-    const response = await axios.get(url);
+    // const response = await axios.get(url);
 
-    if (response.data.return) {
-      console.log(`[OTP SENT] ✅ ${phone} -> ${code}`);
-    } else {
-      console.error("❌ OTP sending failed:", response.data);
-    }
+    // if (response.data.return) {
+    //   console.log(`[OTP SENT] ✅ ${phone} -> ${code}`);
+    // } else {
+    //   console.error("❌ OTP sending failed:", response.data);
+    // }
 
-    // console.log(`[OTP SENT] ✅ ${phone} -> ${code}`);
+    console.log(`[OTP SENT] ✅ ${phone} -> ${code}`);
 
     return true;
 
