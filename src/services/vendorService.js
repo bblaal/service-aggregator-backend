@@ -193,14 +193,24 @@ exports.fetchGlobalMenuList = async () => {
   return rows;
 };
 
+exports.registerToken = async (vendorId, fcmToken, platform) => {
+  try {
+    if (!vendorId || !fcmToken) {
+      return res.status(400).json({ error: "vendorId and fcmToken required" });
+    }
 
-exports.savePushToken = async (vendorId, token) => {
-  const query = `
-    INSERT INTO vendor_push_tokens (vendor_id, token, updated_at)
-    VALUES ($1, $2, NOW())
-    ON CONFLICT (vendor_id)
-    DO UPDATE SET token = EXCLUDED.token, updated_at = NOW();
-  `;
-
-  await pool.query(query, [vendorId, token]);
+    // Upsert to vendor_devices
+    const sql = `
+      INSERT INTO vendor_devices (vendor_id, fcm_token, platform, last_seen)
+      VALUES ($1, $2, $3, now())
+      ON CONFLICT (vendor_id, fcm_token)
+      DO UPDATE SET last_seen = now(), platform = EXCLUDED.platform
+      RETURNING *;
+    `;
+    const { rows } = await pool.query(sql, [vendorId, fcmToken, platform || null]);
+    return ({ success: true, device: rows[0] });
+  } catch (err) {
+    console.error("registerToken error:", err);
+    return ({ success: false, error: err.message });
+  }
 };

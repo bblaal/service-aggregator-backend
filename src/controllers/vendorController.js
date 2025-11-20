@@ -248,11 +248,12 @@ exports.fetchGlobalMenuList = async (req, res) => {
   }
 };
 
-exports.savePushToken = async (req, res, next) => {
+exports.registerToken = async (req, res, next) => {
   try {
-    const { vendorId, token } = req.body;
-    await vendorService.savePushToken(vendorId, token);
-    res.json({ success: true, message: "Push token saved" });
+    console.log("Registering push token:", req.body);
+    const { vendorId, fcmToken, platform } = req.body;
+    const response = await vendorService.registerToken(vendorId, fcmToken, platform);
+    res.json(response);
   } catch (err) {
     next(err);
   }

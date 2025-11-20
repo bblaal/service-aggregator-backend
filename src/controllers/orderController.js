@@ -1,11 +1,11 @@
 const orderService = require("../services/orderService");
+const notificationService = require("../services/notificationService");
 
 exports.createFoodOrder = async (req, res) => {
   try {
     const { vendor_id, order_type, items, address_id, lat, lng, notes } = req.body;
     const { user_id } = req.body;
 
-    // Basic validation
     if (!vendor_id) {
       return res.status(400).json({ error: "vendor_id is required" });
     }
@@ -24,7 +24,17 @@ exports.createFoodOrder = async (req, res) => {
       notes: notes || "",
     });
 
-    // Success response
+    // ----------------------------------------------
+    // Trigger push notification to vendor
+    // ----------------------------------------------
+    try {
+      await notificationService.sendVendorNotification(vendor_id, order.id);
+    } catch (notifyErr) {
+      console.error("Failed to send vendor notification:", notifyErr.message);
+      // Do NOT return error here — notification failure should not break order creation
+    }
+    // ----------------------------------------------
+
     return res.status(201).json({
       success: true,
       message: "Order created successfully",
