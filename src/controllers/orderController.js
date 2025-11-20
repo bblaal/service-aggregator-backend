@@ -28,7 +28,7 @@ exports.createFoodOrder = async (req, res) => {
     // Trigger push notification to vendor
     // ----------------------------------------------
     try {
-      await notificationService.sendVendorNotification(vendor_id, order.id);
+      await notificationService.sendVendorNotification(vendor_id, order.order_id, order.total_vendor_amount);
     } catch (notifyErr) {
       console.error("Failed to send vendor notification:", notifyErr.message);
       // Do NOT return error here — notification failure should not break order creation

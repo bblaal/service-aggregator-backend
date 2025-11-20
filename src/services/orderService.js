@@ -66,17 +66,17 @@ exports.createFoodOrder = async (
     );
 
     // ✅ Fetch vendor push token
-    const vendorRes = await client.query(`SELECT token FROM vendor_push_tokens WHERE vendor_id=$1`, [vendor_id]);
-    const pushToken = vendorRes.rows[0]?.push_token;
+    // const vendorRes = await client.query(`SELECT token FROM vendor_push_tokens WHERE vendor_id=$1`, [vendor_id]);
+    // const pushToken = vendorRes.rows[0]?.push_token;
 
-    if (pushToken) {
-      await notificationService.sendPushNotification(
-        pushToken,
-        "New Order Received 🚀",
-        `Order #${orderId} | Amount: ₹${totalVendor}`,
-        { orderId }
-      );
-    }
+    // if (pushToken) {
+    //   await notificationService.sendPushNotification(
+    //     pushToken,
+    //     "New Order Received 🚀",
+    //     `Order #${orderId} | Amount: ₹${totalVendor}`,
+    //     { orderId }
+    //   );
+    // }
 
     await client.query("COMMIT");
 

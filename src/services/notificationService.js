@@ -33,7 +33,7 @@ async function deleteDeviceById(id) {
  * @param {number|string} orderId
  * @returns {Promise<void>}
  */
-async function sendVendorNotification(vendorId, orderId) {
+async function sendVendorNotification(vendorId, orderId, totalVendorAmount) {
   if (!vendorId) throw new Error("vendorId required");
 
   const devices = await getVendorTokens(vendorId);
@@ -41,8 +41,8 @@ async function sendVendorNotification(vendorId, orderId) {
 
   const tokens = devices.map((d) => d.fcm_token);
 
-  const title = "New Order Received";
-  const body = `You have a new order (#${orderId}). Tap to view.`;
+  const title = "New Order Received 🚀";
+  const body = `You have a new order (#${orderId}) | Amount: ₹${totalVendorAmount}. Tap to view.`;
 
   const message = {
     notification: {
