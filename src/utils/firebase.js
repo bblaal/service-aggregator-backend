@@ -2,19 +2,48 @@
 const admin = require("firebase-admin");
 
 function initFirebase() {
-  if (admin.apps && admin.apps.length) return admin;
+  if (admin.apps.length) return admin;
 
-  const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH; // path to json
-  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON; // json string content
+  const base64Key = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+  const jsonString = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  const filePath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
 
-  let serviceAccount;
-  if (serviceAccountJson) {
-    serviceAccount = JSON.parse(serviceAccountJson);
-  } else if (serviceAccountPath) {
-    serviceAccount = require(serviceAccountPath);
-  } else {
+  let serviceAccount = null;
+
+  // 1️⃣ Base64 decoded key (best method for servers & GitHub)
+  if (base64Key) {
+    try {
+      const decoded = Buffer.from(base64Key, "base64").toString("utf8");
+      serviceAccount = JSON.parse(decoded);
+    } catch (err) {
+      console.error("❌ Invalid FIREBASE_SERVICE_ACCOUNT_BASE64");
+      throw err;
+    }
+  }
+
+  // 2️⃣ Pure JSON string in env
+  else if (jsonString) {
+    try {
+      serviceAccount = JSON.parse(jsonString);
+    } catch (err) {
+      console.error("❌ Invalid FIREBASE_SERVICE_ACCOUNT_JSON");
+      throw err;
+    }
+  }
+
+  // 3️⃣ File path fallback
+  else if (filePath) {
+    try {
+      serviceAccount = require(filePath);
+    } catch (err) {
+      console.error("❌ Cannot load service account JSON file");
+      throw err;
+    }
+  }
+
+  else {
     throw new Error(
-      "Firebase service account not provided. Set FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_SERVICE_ACCOUNT_PATH"
+      "Firebase credentials missing. Set FIREBASE_SERVICE_ACCOUNT_BASE64 or FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_SERVICE_ACCOUNT_PATH"
     );
   }
 
